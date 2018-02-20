@@ -1,10 +1,20 @@
-package com.example.manon.popularmovies;
+package com.example.manon.popularmovies.adapter;
 
+import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+
+import com.example.manon.popularmovies.R;
+import com.example.manon.popularmovies.model.Movie;
+import com.example.manon.popularmovies.utils.NetworkUtils;
+import com.squareup.picasso.Picasso;
+
+import java.net.URL;
+import java.util.List;
+
 
 /**
  * Created by manon on 19/02/2018.
@@ -12,32 +22,35 @@ import android.widget.ImageView;
 
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHolder>{
 
-    //private List<Movie> listMovie;
+    private Context context;
+    private static List<Movie> listMovies;
 
-    public MovieAdapter() {
+    public MovieAdapter(Context context) {
+        this.context = context;
+        listMovies = NetworkUtils.getListMovieFromURL(NetworkUtils.buildUrlByPopularSort());
+    }
 
+    public void setListMovies(List<Movie> newListMovies) {
+        listMovies = newListMovies;
     }
 
     @Override
     public MovieViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-
         View view = inflater.inflate(R.layout.item_view, parent, false);
-
         MovieViewHolder viewHolder = new MovieViewHolder(view);
-
         return viewHolder;
     }
 
     @Override
     public void onBindViewHolder(MovieViewHolder holder, int position) {
-        holder.posterView.setImageResource(R.drawable.poster);
+        URL urlImage = NetworkUtils.buildImageUrl(listMovies.get(position).getPosterPath());
+        Picasso.with(this.context).load(urlImage.toString()).into(holder.posterView);
     }
 
     @Override
     public int getItemCount() {
-        //return listMovie.size();
-        return 10;
+        return listMovies.size();
     }
 
     public class MovieViewHolder extends RecyclerView.ViewHolder {
