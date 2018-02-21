@@ -22,14 +22,15 @@ import java.util.List;
 
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHolder>{
 
-    private Context context;
     private static List<Movie> listMovies;
+    private Context context;
     final private ListItemClickListener mOnClickListener;
 
-    public MovieAdapter(Context context, ListItemClickListener listener) {
+    public MovieAdapter(List<Movie> listMovies, Context context, ListItemClickListener listener) {
+        this.listMovies = listMovies;
         this.context = context;
-        listMovies = NetworkUtils.getListMovieFromURL(NetworkUtils.buildUrlByPopularSort());
         mOnClickListener = listener;
+        this.setHasStableIds(true);
     }
 
     public void setListMovies(List<Movie> newListMovies) {
@@ -42,6 +43,11 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
         View view = inflater.inflate(R.layout.item_view, parent, false);
         MovieViewHolder viewHolder = new MovieViewHolder(view);
         return viewHolder;
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return listMovies.get(position).getId();
     }
 
     @Override
@@ -76,5 +82,6 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
             mOnClickListener.onListItemClick(clickedPosition);
         }
     }
+
 
 }

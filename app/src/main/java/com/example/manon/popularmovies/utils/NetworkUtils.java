@@ -24,7 +24,7 @@ public class NetworkUtils {
     final static String POPULAR_SORT = "movie/popular";
     final static String TOP_RATED_SORT = "movie/top_rated";
     final static String API_QUERY = "api_key";
-    final static String API_KEY = "YOUR_API_KEY_HERE";
+    final static String API_KEY = "9fc446524a3b5ebc71d910572efa87c8";
 
     final static String IMAGES_BASE_URL = "http://image.tmdb.org/t/p/";
     final static String IMAGE_SIZE = "w342/";
@@ -64,37 +64,6 @@ public class NetworkUtils {
             e.printStackTrace();
         }
         return url;
-    }
-
-    public static List<Movie> getListMovieFromURL(URL url) {
-        List<Movie> listMovies = null;
-        new MoviesQueryTask().execute(url);
-        AsyncTask<URL, Void, List<Movie>> async = new MoviesQueryTask().execute(url);
-        try {
-            listMovies = async.get();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }
-        return listMovies;
-    }
-
-    public static class MoviesQueryTask extends AsyncTask<URL, Void, List<Movie>>{
-
-        @Override
-        protected List<Movie> doInBackground(URL... params) {
-            URL urlQuery = params[0];
-            String resultQuery = null;
-            List<Movie> listMovies = new ArrayList<>();
-            try {
-                resultQuery = NetworkUtils.getResponseFromHttpUrl(urlQuery);
-                listMovies = JsonUtils.parseMovieJson(resultQuery);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return listMovies;
-        }
     }
 
     public static String getResponseFromHttpUrl(URL url) throws IOException {
