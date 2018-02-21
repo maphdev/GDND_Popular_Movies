@@ -24,10 +24,12 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
 
     private Context context;
     private static List<Movie> listMovies;
+    final private ListItemClickListener mOnClickListener;
 
-    public MovieAdapter(Context context) {
+    public MovieAdapter(Context context, ListItemClickListener listener) {
         this.context = context;
         listMovies = NetworkUtils.getListMovieFromURL(NetworkUtils.buildUrlByPopularSort());
+        mOnClickListener = listener;
     }
 
     public void setListMovies(List<Movie> newListMovies) {
@@ -53,13 +55,25 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
         return listMovies.size();
     }
 
-    public class MovieViewHolder extends RecyclerView.ViewHolder {
+    public interface ListItemClickListener {
+        void onListItemClick(int clickedItemIndex);
+
+    }
+
+    public class MovieViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         ImageView posterView;
 
         public MovieViewHolder(View itemView) {
             super(itemView);
             posterView = (ImageView) itemView.findViewById(R.id.posterView);
+            itemView.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View view) {
+            int clickedPosition = getAdapterPosition();
+            mOnClickListener.onListItemClick(clickedPosition);
         }
     }
 

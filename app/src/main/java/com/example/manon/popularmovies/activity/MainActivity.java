@@ -12,12 +12,13 @@ import com.example.manon.popularmovies.adapter.MovieAdapter;
 import com.example.manon.popularmovies.R;
 import com.example.manon.popularmovies.utils.NetworkUtils;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements MovieAdapter.ListItemClickListener {
 
     private MovieAdapter adapter;
     private RecyclerView recycler;
-    GridLayoutManager layoutManager;
-    Menu currentMenu;
+    private GridLayoutManager layoutManager;
+    private Menu currentMenu;
+    private Toast toast;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
         recycler.setLayoutManager(layoutManager);
         recycler.setHasFixedSize(true);
 
-        adapter = new MovieAdapter(getApplicationContext());
+        adapter = new MovieAdapter(getApplicationContext(), this);
         recycler.setAdapter(adapter);
     }
 
@@ -63,5 +64,15 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onListItemClick(int clickedItemIndex) {
+        if (toast != null) {
+            toast.cancel();
+        }
+        String toastMessage = "Item #" + clickedItemIndex + " clicked";
+        toast = Toast.makeText(this, toastMessage, Toast.LENGTH_SHORT);
+        toast.show();
     }
 }

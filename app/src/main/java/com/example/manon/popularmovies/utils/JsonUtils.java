@@ -34,7 +34,7 @@ public class JsonUtils {
 
     public static List<Movie> parseMovieJson (String json) {
 
-        List<Movie> listMovies = null;
+        List<Movie> listMovies = new ArrayList<>();
 
         JSONObject resultsPageObject = null;
         JSONArray resultsArray = null;

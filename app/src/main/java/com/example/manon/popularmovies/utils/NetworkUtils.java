@@ -2,8 +2,6 @@ package com.example.manon.popularmovies.utils;
 
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.util.Log;
-import android.widget.Toast;
 
 import com.example.manon.popularmovies.model.Movie;
 
@@ -12,6 +10,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.ExecutionException;
@@ -87,7 +86,7 @@ public class NetworkUtils {
         protected List<Movie> doInBackground(URL... params) {
             URL urlQuery = params[0];
             String resultQuery = null;
-            List<Movie> listMovies = null;
+            List<Movie> listMovies = new ArrayList<>();
             try {
                 resultQuery = NetworkUtils.getResponseFromHttpUrl(urlQuery);
                 listMovies = JsonUtils.parseMovieJson(resultQuery);
