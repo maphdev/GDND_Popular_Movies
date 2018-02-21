@@ -33,8 +33,17 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
         this.setHasStableIds(true);
     }
 
+    public List<Movie> getListMovies(){
+        return this.listMovies;
+    }
+
     public void setListMovies(List<Movie> newListMovies) {
         listMovies = newListMovies;
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return listMovies.get(position).getId();
     }
 
     @Override
@@ -43,11 +52,6 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
         View view = inflater.inflate(R.layout.item_view, parent, false);
         MovieViewHolder viewHolder = new MovieViewHolder(view);
         return viewHolder;
-    }
-
-    @Override
-    public long getItemId(int position) {
-        return listMovies.get(position).getId();
     }
 
     @Override

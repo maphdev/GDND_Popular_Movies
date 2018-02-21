@@ -1,19 +1,13 @@
 package com.example.manon.popularmovies.utils;
 
 import android.net.Uri;
-import android.os.AsyncTask;
-
-import com.example.manon.popularmovies.model.Movie;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
-import java.util.concurrent.ExecutionException;
 
 /**
  * Created by manon on 20/02/2018.

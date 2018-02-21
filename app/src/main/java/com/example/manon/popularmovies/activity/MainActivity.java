@@ -1,5 +1,8 @@
 package com.example.manon.popularmovies.activity;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -40,7 +43,11 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
         loadingIndicator = (ProgressBar) findViewById(R.id.loading_indicator);
 
         recycler = (RecyclerView) findViewById(R.id.recyclerview_posters);
-        layoutManager = new GridLayoutManager(this, 2);
+        if (this.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT){
+            layoutManager = new GridLayoutManager(this, 2);
+        } else {
+            layoutManager = new GridLayoutManager(this, 4);
+        }
         recycler.setLayoutManager(layoutManager);
         recycler.setHasFixedSize(true);
 
@@ -94,7 +101,6 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
     }
 
     public class MoviesQueryTask extends AsyncTask<URL, Void, List<Movie>>{
-
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
@@ -129,5 +135,11 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
         String toastMessage = "Item #" + clickedItemIndex + " clicked";
         toast = Toast.makeText(this, toastMessage, Toast.LENGTH_SHORT);
         toast.show();
+
+        Context context = MainActivity.this;
+        Class destinationClass = DetailsActivity.class;
+
+        Intent startDetailsActivity = new Intent(context, destinationClass);
+        startActivity(startDetailsActivity);
     }
 }
