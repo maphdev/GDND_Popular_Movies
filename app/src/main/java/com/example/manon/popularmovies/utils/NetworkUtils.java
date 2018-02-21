@@ -24,7 +24,7 @@ public class NetworkUtils {
     final static String POPULAR_SORT = "movie/popular";
     final static String TOP_RATED_SORT = "movie/top_rated";
     final static String API_QUERY = "api_key";
-    final static String API_KEY = "9fc446524a3b5ebc71d910572efa87c8";
+    final static String API_KEY = "YOUR_KEY_HERE";
 
     final static String IMAGES_BASE_URL = "http://image.tmdb.org/t/p/";
     final static String IMAGE_SIZE = "w342/";
