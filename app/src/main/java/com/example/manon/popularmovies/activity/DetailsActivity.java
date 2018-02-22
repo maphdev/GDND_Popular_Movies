@@ -19,26 +19,27 @@ public class DetailsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_details);
 
-        Movie movie = (Movie) getIntent().getParcelableExtra("movie_parcel");
+        Movie movie = getIntent().getParcelableExtra("movie_parcel");
+        setTitle("Movie details");
 
-        ImageView background = (ImageView) findViewById(R.id.background);
+        ImageView background = findViewById(R.id.background);
         URL urlImageBackground = NetworkUtils.buildBackgroundUrl(movie.getBackdropPath());
         Picasso.with(this).load(urlImageBackground.toString()).into(background);
 
-        ImageView poster = (ImageView) findViewById(R.id.poster);
+        ImageView poster = findViewById(R.id.poster);
         URL urlImagePoster = NetworkUtils.buildPosterUrl(movie.getPosterPath());
         Picasso.with(this).load(urlImagePoster.toString()).into(poster);
 
-        TextView title = (TextView) findViewById(R.id.title);
+        TextView title = findViewById(R.id.title);
         title.setText(movie.getTitle());
 
-        TextView overview = (TextView) findViewById(R.id.synopsis_text) ;
+        TextView overview = findViewById(R.id.synopsis_text);
         overview.setText(movie.getOverview());
 
-        TextView releaseDate = (TextView) findViewById(R.id.release_date);
+        TextView releaseDate = findViewById(R.id.release_date);
         releaseDate.setText(movie.getReleaseDate());
 
-        TextView voteAverage = (TextView) findViewById(R.id.vote_average);
+        TextView voteAverage = findViewById(R.id.vote_average);
         voteAverage.setText(Double.toString(movie.getVoteAverage())+"/10");
     }
 }

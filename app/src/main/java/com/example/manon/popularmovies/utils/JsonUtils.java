@@ -34,24 +34,24 @@ public class JsonUtils {
 
         List<Movie> listMovies = new ArrayList<>();
 
-        JSONObject resultsPageObject = null;
-        JSONArray resultsArray = null;
+        JSONObject resultsPageObject;
+        JSONArray resultsArray;
 
-        String posterPath = null;
-        boolean adult = false;
-        String overview = null;
-        String releaseDate = null;
-        JSONArray genreIdsArray = null;
-        List<Integer> genreIdsList = null;
-        Integer id = null;
-        String originalTitle = null;
-        String originalLanguage = null;
-        String title = null;
-        String backdropPath = null;
-        Double popularity = null;
-        Integer voteCount = null;
-        boolean video = false;
-        Double voteAverage = null;
+        String posterPath;
+        boolean adult;
+        String overview;
+        String releaseDate;
+        JSONArray genreIdsArray;
+        List<Integer> genreIdsList;
+        Integer id;
+        String originalTitle;
+        String originalLanguage;
+        String title;
+        String backdropPath;
+        Double popularity;
+        Integer voteCount;
+        boolean video;
+        Double voteAverage;
 
         try {
             resultsPageObject = new JSONObject(json);

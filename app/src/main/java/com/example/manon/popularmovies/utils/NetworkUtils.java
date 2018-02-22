@@ -14,15 +14,15 @@ import java.util.Scanner;
  */
 
 public class NetworkUtils {
-    final static String MOVIES_BASE_URL = "https://api.themoviedb.org/3/";
-    final static String POPULAR_SORT = "movie/popular";
-    final static String TOP_RATED_SORT = "movie/top_rated";
-    final static String API_QUERY = "api_key";
-    final static String API_KEY = "YOUR_API_KEY_HERE";
+    private final static String MOVIES_BASE_URL = "https://api.themoviedb.org/3/";
+    private final static String POPULAR_SORT = "movie/popular";
+    private final static String TOP_RATED_SORT = "movie/top_rated";
+    private final static String API_QUERY = "api_key";
+    private final static String API_KEY = "YOUR_API_KEY_HERE";
 
-    final static String IMAGES_BASE_URL = "http://image.tmdb.org/t/p/";
-    final static String POSTER_SIZE = "w342/";
-    final static String BACKGROUND_SIZE = "w500/";
+    private final static String IMAGES_BASE_URL = "http://image.tmdb.org/t/p/";
+    private final static String POSTER_SIZE = "w342/";
+    private final static String BACKGROUND_SIZE = "w500/";
 
 
     public static URL buildUrlByPopularSort() {

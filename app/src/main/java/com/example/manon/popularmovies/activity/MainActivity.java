@@ -28,7 +28,6 @@ import java.util.concurrent.ExecutionException;
 public class MainActivity extends AppCompatActivity implements MovieAdapter.ListItemClickListener {
 
     private MovieAdapter adapter;
-    private RecyclerView recycler;
     private GridLayoutManager layoutManager;
     private Menu currentMenu;
     private ProgressBar loadingIndicator;
@@ -38,9 +37,9 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        loadingIndicator = (ProgressBar) findViewById(R.id.loading_indicator);
+        loadingIndicator = findViewById(R.id.loading_indicator);
 
-        recycler = (RecyclerView) findViewById(R.id.recyclerview_posters);
+        RecyclerView recycler = findViewById(R.id.recyclerview_posters);
         if (this.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT){
             layoutManager = new GridLayoutManager(this, 2);
         } else {
@@ -104,7 +103,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
         @Override
         protected List<Movie> doInBackground(URL... params) {
             URL urlQuery = params[0];
-            String resultQuery = null;
+            String resultQuery;
             List<Movie> listMovies = new ArrayList<>();
             try {
                 resultQuery = NetworkUtils.getResponseFromHttpUrl(urlQuery);

@@ -22,7 +22,7 @@ import java.util.List;
 
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHolder>{
 
-    private static List<Movie> listMovies;
+    private List<Movie> listMovies;
     private Context context;
     final private ListItemClickListener mOnClickListener;
 
@@ -50,8 +50,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
     public MovieViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         View view = inflater.inflate(R.layout.item_view, parent, false);
-        MovieViewHolder viewHolder = new MovieViewHolder(view);
-        return viewHolder;
+        return new MovieViewHolder(view);
     }
 
     @Override
@@ -76,7 +75,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
 
         public MovieViewHolder(View itemView) {
             super(itemView);
-            posterView = (ImageView) itemView.findViewById(R.id.posterView);
+            posterView = itemView.findViewById(R.id.posterView);
             itemView.setOnClickListener(this);
         }
 
