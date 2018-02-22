@@ -1,7 +1,5 @@
 package com.example.manon.popularmovies.utils;
 
-import android.util.Log;
-
 import com.example.manon.popularmovies.model.Movie;
 
 import org.json.JSONArray;

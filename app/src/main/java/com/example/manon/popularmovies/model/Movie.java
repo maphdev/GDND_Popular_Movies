@@ -1,6 +1,7 @@
 package com.example.manon.popularmovies.model;
 
-import com.google.gson.annotations.SerializedName;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import java.util.List;
 
@@ -8,7 +9,7 @@ import java.util.List;
  * Created by manon on 20/02/2018.
  */
 
-public class Movie {
+public class Movie implements Parcelable{
     private String posterPath;
     private boolean adult;
     private String overview;
@@ -41,14 +42,6 @@ public class Movie {
         this.video = video;
         this.voteAverage = voteAverage;
     }
-
-    public String print(){
-        StringBuffer str = new StringBuffer();
-        str.append(posterPath);
-        str.append(voteAverage);
-        return str.toString();
-    }
-
 
     public String getPosterPath() {
         return posterPath;
@@ -161,4 +154,41 @@ public class Movie {
     public void setVoteAverage(Double voteAverage) {
         this.voteAverage = voteAverage;
     }
+
+    public Movie(Parcel in) {
+        this.posterPath = in.readString();
+        this.backdropPath = in.readString();
+        this.title = in.readString();
+        this.overview = in.readString();
+        this.releaseDate = in.readString();
+        this.voteAverage = in.readDouble();
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int i) {
+        dest.writeString(posterPath);
+        dest.writeString(backdropPath);
+        dest.writeString(title);
+        dest.writeString(overview);
+        dest.writeString(releaseDate);
+        dest.writeDouble(voteAverage);
+    }
+
+    public static final Parcelable.Creator<Movie> CREATOR = new Parcelable.Creator<Movie>() {
+
+        @Override
+        public Movie createFromParcel(Parcel in) {
+            return new Movie(in);
+        }
+
+        @Override
+        public Movie[] newArray(int size) {
+            return new Movie[size];
+        }
+    };
+
+    public int describeContents() {
+        return 0;
+    }
+
 }

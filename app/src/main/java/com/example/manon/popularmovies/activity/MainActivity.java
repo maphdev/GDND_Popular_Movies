@@ -33,7 +33,6 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
     private GridLayoutManager layoutManager;
     private Menu currentMenu;
     private ProgressBar loadingIndicator;
-    private Toast toast;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -129,17 +128,13 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
 
     @Override
     public void onListItemClick(int clickedItemIndex) {
-        if (toast != null) {
-            toast.cancel();
-        }
-        String toastMessage = "Item #" + clickedItemIndex + " clicked";
-        toast = Toast.makeText(this, toastMessage, Toast.LENGTH_SHORT);
-        toast.show();
-
         Context context = MainActivity.this;
         Class destinationClass = DetailsActivity.class;
 
         Intent startDetailsActivity = new Intent(context, destinationClass);
+        Movie movie = adapter.getListMovies().get(clickedItemIndex);
+        startDetailsActivity.putExtra("movie_parcel", movie);
+
         startActivity(startDetailsActivity);
     }
 }

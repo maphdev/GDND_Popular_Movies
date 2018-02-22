@@ -18,10 +18,12 @@ public class NetworkUtils {
     final static String POPULAR_SORT = "movie/popular";
     final static String TOP_RATED_SORT = "movie/top_rated";
     final static String API_QUERY = "api_key";
-    final static String API_KEY = "YOUR_KEY_HERE";
+    final static String API_KEY = "YOUR_API_KEY_HERE";
 
     final static String IMAGES_BASE_URL = "http://image.tmdb.org/t/p/";
-    final static String IMAGE_SIZE = "w342/";
+    final static String POSTER_SIZE = "w342/";
+    final static String BACKGROUND_SIZE = "w500/";
+
 
     public static URL buildUrlByPopularSort() {
         Uri builtUri = Uri.parse(MOVIES_BASE_URL).buildUpon()
@@ -41,14 +43,24 @@ public class NetworkUtils {
         return getURLfromUri(builtUri);
     }
 
-    public static URL buildImageUrl(String poster_path) {
+    public static URL buildPosterUrl(String poster_path) {
         Uri builtUri = Uri.parse(IMAGES_BASE_URL).buildUpon()
-                .appendEncodedPath(IMAGE_SIZE)
+                .appendEncodedPath(POSTER_SIZE)
                 .appendEncodedPath(poster_path)
                 .build();
 
         return getURLfromUri(builtUri);
     }
+
+    public static URL buildBackgroundUrl(String poster_path) {
+        Uri builtUri = Uri.parse(IMAGES_BASE_URL).buildUpon()
+                .appendEncodedPath(BACKGROUND_SIZE)
+                .appendEncodedPath(poster_path)
+                .build();
+
+        return getURLfromUri(builtUri);
+    }
+
 
     private static URL getURLfromUri(Uri uri) {
         URL url = null;
@@ -63,7 +75,6 @@ public class NetworkUtils {
     public static String getResponseFromHttpUrl(URL url) throws IOException {
         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
         try {
-
             InputStream in = urlConnection.getInputStream();
 
             Scanner sc = new Scanner(in);
