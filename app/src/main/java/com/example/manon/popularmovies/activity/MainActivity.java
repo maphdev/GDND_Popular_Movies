@@ -12,7 +12,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import com.example.manon.popularmovies.adapter.MovieAdapter;
 import com.example.manon.popularmovies.R;
@@ -62,11 +61,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
 
     public boolean onOptionsItemSelected(MenuItem item) {
         int itemThatWasClickedId = item.getItemId();
-        if (itemThatWasClickedId == R.id.action_search) {
-            Toast toast = Toast.makeText(getApplicationContext(), "search", Toast.LENGTH_SHORT);
-            toast.show();
-            return true;
-        } else if (itemThatWasClickedId == R.id.action_sort_popular) {
+        if (itemThatWasClickedId == R.id.action_sort_popular) {
             adapter.setListMovies(getListMovieFromURL(NetworkUtils.buildUrlByPopularSort()));
             adapter.notifyDataSetChanged();
             layoutManager.scrollToPosition(0);
