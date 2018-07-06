@@ -1,5 +1,7 @@
 package com.example.manon.popularmovies.utils;
 
+import android.util.Log;
+
 import com.example.manon.popularmovies.model.Movie;
 
 import org.json.JSONArray;
@@ -119,6 +121,61 @@ public class JsonUtils {
         }
 
         return listKeys;
+    }
+
+    // trailer
+    private static final String AUTHOR = "author";
+
+
+    public static List<String> parseAuthorKeysJson (String json) {
+
+        List<String> listAuthor = new ArrayList<>();
+
+        JSONObject resultsPageObject;
+        JSONArray resultsArray;
+        String author;
+
+        try {
+            resultsPageObject = new JSONObject(json);
+            resultsArray = resultsPageObject.optJSONArray(RESULTS);
+
+            for (int i = 0; i < resultsArray.length(); i++) {
+                JSONObject oneResult = resultsArray.optJSONObject(i);
+                author = oneResult.getString(AUTHOR);
+                listAuthor.add(author);
+            }
+        } catch (JSONException e){
+            e.printStackTrace();
+        }
+
+        return listAuthor;
+    }
+
+    // trailer
+    private static final String CONTENT = "content";
+
+    public static List<String> parseReviewKeysJson (String json) {
+
+        List<String> listAuthor = new ArrayList<>();
+
+        JSONObject resultsPageObject;
+        JSONArray resultsArray;
+        String review;
+
+        try {
+            resultsPageObject = new JSONObject(json);
+            resultsArray = resultsPageObject.optJSONArray(RESULTS);
+
+            for (int i = 0; i < resultsArray.length(); i++) {
+                JSONObject oneResult = resultsArray.optJSONObject(i);
+                review = oneResult.getString(CONTENT);
+                listAuthor.add(review);
+            }
+        } catch (JSONException e){
+            e.printStackTrace();
+        }
+
+        return listAuthor;
     }
 
 }

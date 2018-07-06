@@ -13,10 +13,10 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.manon.popularmovies.R;
+import com.example.manon.popularmovies.adapter.ReviewAdapter;
 import com.example.manon.popularmovies.adapter.TrailerAdapter;
 import com.example.manon.popularmovies.model.Movie;
 import com.example.manon.popularmovies.utils.JsonUtils;
@@ -34,7 +34,8 @@ public class DetailsActivity extends AppCompatActivity implements TrailerAdapter
     private static final int DETAILS_SEARCH_LOADER = 9031996;
 
     private Boolean favorite;
-    TrailerAdapter adapter;
+    TrailerAdapter trailerAdapter;
+    ReviewAdapter reviewAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +56,9 @@ public class DetailsActivity extends AppCompatActivity implements TrailerAdapter
 
         // setTrailerAdapter
         setTrailerAdapter();
+
+        // setReviewAdapter
+        setReviewAdapter();
 
         Bundle queryBundle = new Bundle();
         queryBundle.putString("MOVIE_ID", movie.getId().toString());
@@ -129,7 +133,7 @@ public class DetailsActivity extends AppCompatActivity implements TrailerAdapter
         return Math.round(d * 2) / 2.0;
     }
 
-    // set adapter for trailers
+    // set trailerAdapter for trailers
     public void setTrailerAdapter(){
 
         RecyclerView recyclerView;
@@ -142,11 +146,29 @@ public class DetailsActivity extends AppCompatActivity implements TrailerAdapter
 
         recyclerView.setHasFixedSize(true);
 
-        adapter = new TrailerAdapter(Arrays.asList(""), this, this);
-        recyclerView.setAdapter(adapter);
+        trailerAdapter = new TrailerAdapter(Arrays.asList(""), this, this);
+        recyclerView.setAdapter(trailerAdapter);
     }
 
-    // set the trailer adapter listener's action
+    // set trailerAdapter for trailers
+    public void setReviewAdapter(){
+
+        RecyclerView recyclerView;
+
+        recyclerView = (RecyclerView) findViewById(R.id.reviewRecyclerView);
+
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        layoutManager.setStackFromEnd(true);
+        recyclerView.setLayoutManager(layoutManager);
+
+        recyclerView.setHasFixedSize(true);
+
+        reviewAdapter = new ReviewAdapter(Arrays.asList(""), Arrays.asList(""));
+        recyclerView.setAdapter(reviewAdapter);
+    }
+
+    // set the trailer trailerAdapter listener's action
     @Override
     public void onListItemClicked(int clickedItemIndex, String key) {
         Log.v("TRY", Integer.toString(clickedItemIndex));
@@ -197,7 +219,7 @@ public class DetailsActivity extends AppCompatActivity implements TrailerAdapter
 
                     URL reviewsURL = NetworkUtils.buildURLReviews(movieId);
                     String reviewsResult = NetworkUtils.getResponseFromHttpUrl(reviewsURL);
-                    myStrings.putString("REVIEWS_RESULT", reviewsResult);
+                    myStrings.putString("REVIEW_RESULT", reviewsResult);
                 } catch (IOException e){
                     e.printStackTrace();
                 }
@@ -212,8 +234,23 @@ public class DetailsActivity extends AppCompatActivity implements TrailerAdapter
             Log.v("TRY", "no data");
         } else {
             List<String> listKeys = JsonUtils.parseTrailerKeysJson(bundle.getString("TRAILER_RESULT"));
-            adapter.setTrailerList(listKeys);
-            adapter.notifyDataSetChanged();
+            trailerAdapter.setTrailerList(listKeys);
+            trailerAdapter.notifyDataSetChanged();
+
+            List<String> listAuthors = JsonUtils.parseAuthorKeysJson(bundle.getString("REVIEW_RESULT"));
+            reviewAdapter.setListAuthors(listAuthors);
+
+            List<String> listReviews = JsonUtils.parseReviewKeysJson(bundle.getString("REVIEW_RESULT"));
+            reviewAdapter.setListReviews(listReviews);
+
+            reviewAdapter.notifyDataSetChanged();
+
+            if (listReviews.size() == 0){
+                TextView noReviewTextView = (TextView) findViewById(R.id.noReviewTxtView);
+                noReviewTextView.setText("No reviews yet!");
+                noReviewTextView.setVisibility(View.VISIBLE);
+            }
+
         }
     }
 
