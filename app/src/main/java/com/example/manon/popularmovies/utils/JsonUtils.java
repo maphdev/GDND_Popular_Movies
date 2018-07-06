@@ -6,6 +6,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,6 +16,8 @@ import java.util.List;
 
 public class JsonUtils {
     private static final String RESULTS = "results";
+
+    // movie
     private static final String POSTER_PATH = "poster_path";
     private static final String ADULT = "adult";
     private static final String OVERVIEW = "overview";
@@ -89,4 +92,33 @@ public class JsonUtils {
 
         return listMovies;
     }
+
+    // trailer
+    private static final String KEY = "key";
+
+    public static List<String> parseTrailerKeysJson (String json) {
+
+        List<String> listKeys = new ArrayList<>();
+
+        JSONObject resultsPageObject;
+        JSONArray resultsArray;
+        String key;
+
+        try {
+            resultsPageObject = new JSONObject(json);
+            resultsArray = resultsPageObject.optJSONArray(RESULTS);
+
+            for (int i = 0; i < resultsArray.length(); i++) {
+                JSONObject oneResult = resultsArray.optJSONObject(i);
+                key = oneResult.getString(KEY);
+                listKeys.add(key);
+            }
+
+        } catch (JSONException e){
+            e.printStackTrace();
+        }
+
+        return listKeys;
+    }
+
 }

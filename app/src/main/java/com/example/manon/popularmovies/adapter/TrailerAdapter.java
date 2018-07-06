@@ -2,7 +2,6 @@ package com.example.manon.popularmovies.adapter;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,14 +16,18 @@ import java.util.List;
 
 public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.TrailerViewHolder>{
 
-    private List<String> listTrailerThumbnails;
+    private List<String> listTrailerKeysThumbnails;
     Context context;
     final private ListItemClickListener clickListener;
 
    public TrailerAdapter(List<String> listTrailerThumbnails, Context context, ListItemClickListener clickListener) {
-       this.listTrailerThumbnails = listTrailerThumbnails;
+       this.listTrailerKeysThumbnails = listTrailerThumbnails;
        this.context = context;
        this.clickListener = clickListener;
+   }
+
+   public void setTrailerList(List<String> listTrailers){
+       this.listTrailerKeysThumbnails = listTrailers;
    }
 
     @Override
@@ -40,14 +43,13 @@ public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.TrailerV
 
     @Override
     public void onBindViewHolder(TrailerViewHolder holder, int position) {
-        URL urlImage = NetworkUtils.buildTrailerThumbnailUrl(listTrailerThumbnails.get(position));
-        //Log.v("TRY", urlImage.toString());
+        URL urlImage = NetworkUtils.buildTrailerThumbnailUrl(listTrailerKeysThumbnails.get(position));
         Picasso.with(this.context).load(urlImage.toString()).into(holder.trailerThumbnailView);
     }
 
     @Override
     public int getItemCount() {
-        return listTrailerThumbnails.size();
+        return listTrailerKeysThumbnails.size();
     }
 
     public class TrailerViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -63,11 +65,12 @@ public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.TrailerV
         @Override
         public void onClick(View view) {
             int clickedPosition = getAdapterPosition();
-            clickListener.onListItemClicked(clickedPosition);
+            String key = listTrailerKeysThumbnails.get(clickedPosition);
+            clickListener.onListItemClicked(clickedPosition, key);
         }
     }
 
     public interface ListItemClickListener{
-       void onListItemClicked(int clickedItemIndex);
+       void onListItemClicked(int clickedItemIndex, String key);
     }
 }

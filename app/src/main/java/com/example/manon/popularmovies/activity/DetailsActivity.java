@@ -1,6 +1,11 @@
 package com.example.manon.popularmovies.activity;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -14,17 +19,22 @@ import android.widget.TextView;
 import com.example.manon.popularmovies.R;
 import com.example.manon.popularmovies.adapter.TrailerAdapter;
 import com.example.manon.popularmovies.model.Movie;
+import com.example.manon.popularmovies.utils.JsonUtils;
 import com.example.manon.popularmovies.utils.NetworkUtils;
 import com.squareup.picasso.Picasso;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class DetailsActivity extends AppCompatActivity implements TrailerAdapter.ListItemClickListener {
+public class DetailsActivity extends AppCompatActivity implements TrailerAdapter.ListItemClickListener, LoaderManager.LoaderCallbacks<Bundle> {
+
+    private static final int DETAILS_SEARCH_LOADER = 9031996;
 
     private Boolean favorite;
+    TrailerAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,7 +56,17 @@ public class DetailsActivity extends AppCompatActivity implements TrailerAdapter
         // setTrailerAdapter
         setTrailerAdapter();
 
-        Log.v("TRY", movie.getId().toString());
+        Bundle queryBundle = new Bundle();
+        queryBundle.putString("MOVIE_ID", movie.getId().toString());
+
+        LoaderManager loaderManager = getSupportLoaderManager();
+        Loader<Bundle> trailersAndReviewsLoader = loaderManager.getLoader(DETAILS_SEARCH_LOADER);
+
+        if (trailersAndReviewsLoader == null){
+            loaderManager.initLoader(DETAILS_SEARCH_LOADER, queryBundle, this);
+        } else {
+            loaderManager.restartLoader(DETAILS_SEARCH_LOADER, queryBundle, this);
+        }
     }
 
     // display movie components
@@ -111,7 +131,7 @@ public class DetailsActivity extends AppCompatActivity implements TrailerAdapter
 
     // set adapter for trailers
     public void setTrailerAdapter(){
-        TrailerAdapter adapter;
+
         RecyclerView recyclerView;
 
         recyclerView = (RecyclerView) findViewById(R.id.trailerRecyclerView);
@@ -122,13 +142,83 @@ public class DetailsActivity extends AppCompatActivity implements TrailerAdapter
 
         recyclerView.setHasFixedSize(true);
 
-        adapter = new TrailerAdapter(Arrays.asList("_y9-tBQ0anQ","_y9-tBQ0anQ","_y9-tBQ0anQ","_y9-tBQ0anQ","_y9-tBQ0anQ"), this, this);
+        adapter = new TrailerAdapter(Arrays.asList(""), this, this);
         recyclerView.setAdapter(adapter);
     }
 
     // set the trailer adapter listener's action
     @Override
-    public void onListItemClicked(int clickedItemIndex) {
+    public void onListItemClicked(int clickedItemIndex, String key) {
         Log.v("TRY", Integer.toString(clickedItemIndex));
+
+        Uri.Builder builder = new Uri.Builder();
+        builder.scheme("https")
+                .authority("www.youtube.com")
+                .appendEncodedPath("watch")
+                .appendQueryParameter("v", key);
+
+        Uri builtUri = builder.build();
+
+        Intent intent = new Intent(Intent.ACTION_VIEW, builtUri);
+
+        if (intent.resolveActivity(getPackageManager()) != null){
+            startActivity(intent);
+        }
+    }
+
+    // AsyncTaskLoader for trailers and reviews
+    @Override
+    public Loader<Bundle> onCreateLoader(int i, final Bundle bundle) {
+        return new AsyncTaskLoader<Bundle>(this) {
+            Bundle myStrings;
+
+            @Override
+            protected void onStartLoading() {
+                if (bundle == null){
+                    return;
+                }
+
+                if (myStrings != null){
+                    deliverResult(myStrings);
+                } else {
+                    forceLoad();
+                }
+            }
+
+            @Override
+            public Bundle loadInBackground() {
+                String movieId = bundle.getString("MOVIE_ID");
+
+                Bundle myStrings = new Bundle();
+                try {
+                    URL trailersURL = NetworkUtils.buildURLTrailers(movieId);
+                    String trailerResult = NetworkUtils.getResponseFromHttpUrl(trailersURL);
+                    myStrings.putString("TRAILER_RESULT", trailerResult);
+
+                    URL reviewsURL = NetworkUtils.buildURLReviews(movieId);
+                    String reviewsResult = NetworkUtils.getResponseFromHttpUrl(reviewsURL);
+                    myStrings.putString("REVIEWS_RESULT", reviewsResult);
+                } catch (IOException e){
+                    e.printStackTrace();
+                }
+                return myStrings;
+            }
+        };
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Bundle> loader, Bundle bundle) {
+        if(bundle == null){
+            Log.v("TRY", "no data");
+        } else {
+            List<String> listKeys = JsonUtils.parseTrailerKeysJson(bundle.getString("TRAILER_RESULT"));
+            adapter.setTrailerList(listKeys);
+            adapter.notifyDataSetChanged();
+        }
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Bundle> loader) {
+
     }
 }
