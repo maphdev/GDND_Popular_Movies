@@ -28,6 +28,7 @@ import java.util.concurrent.ExecutionException;
 public class MainActivity extends AppCompatActivity implements MovieAdapter.ListItemClickListener {
 
     private MovieAdapter adapter;
+    private RecyclerView recycler;
     private GridLayoutManager layoutManager;
     private Menu currentMenu;
     private ProgressBar loadingIndicator;
@@ -39,7 +40,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
 
         loadingIndicator = findViewById(R.id.loading_indicator);
 
-        RecyclerView recycler = findViewById(R.id.recyclerview_posters);
+        recycler = findViewById(R.id.recyclerview_posters);
         if (this.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT){
             layoutManager = new GridLayoutManager(this, 2);
         } else {
@@ -52,12 +53,14 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
         recycler.setAdapter(adapter);
     }
 
+    // inflate the menu
     public boolean onCreateOptionsMenu(Menu menu) {
         currentMenu = menu;
         getMenuInflater().inflate(R.menu.main_menu, menu);
         return true;
     }
 
+    // set the actions for each menu item
     public boolean onOptionsItemSelected(MenuItem item) {
         int itemThatWasClickedId = item.getItemId();
         if (itemThatWasClickedId == R.id.action_sort_popular) {
@@ -76,10 +79,14 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
             currentMenu.findItem(R.id.action_sort_top_rated).setVisible(false);
             setTitle("Top rated movies");
             return true;
+        } else if (itemThatWasClickedId == R.id.action_show_favorites) {
+            // action
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
+    // retrieve movies list
     public List<Movie> getListMovieFromURL(URL url) {
         List<Movie> listMovies = null;
         AsyncTask<URL, Void, List<Movie>> async = new MoviesQueryTask().execute(url);
@@ -120,6 +127,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
         }
     }
 
+    // set an action when we click on a RecylerView's item
     @Override
     public void onListItemClick(int clickedItemIndex) {
         Context context = MainActivity.this;

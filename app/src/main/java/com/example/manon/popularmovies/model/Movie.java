@@ -162,6 +162,7 @@ public class Movie implements Parcelable{
         this.overview = in.readString();
         this.releaseDate = in.readString();
         this.voteAverage = in.readDouble();
+        this.id = in.readInt();
     }
 
     @Override
@@ -172,6 +173,7 @@ public class Movie implements Parcelable{
         dest.writeString(overview);
         dest.writeString(releaseDate);
         dest.writeDouble(voteAverage);
+        dest.writeInt(id);
     }
 
     public static final Parcelable.Creator<Movie> CREATOR = new Parcelable.Creator<Movie>() {

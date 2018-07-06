@@ -14,17 +14,32 @@ import java.util.Scanner;
  */
 
 public class NetworkUtils {
-    private final static String MOVIES_BASE_URL = "https://api.themoviedb.org/3/";
-    private final static String POPULAR_SORT = "movie/popular";
-    private final static String TOP_RATED_SORT = "movie/top_rated";
+
+    // Base
+    private final static String MOVIES_BASE_URL = "https://api.themoviedb.org/3/movie";
+
+    // MainActivity
+    private final static String POPULAR_SORT = "popular";
+    private final static String TOP_RATED_SORT = "top_rated";
     private final static String API_QUERY = "api_key";
     private final static String API_KEY = "null";
 
+    // DetailsActivity images
     private final static String IMAGES_BASE_URL = "http://image.tmdb.org/t/p/";
     private final static String POSTER_SIZE = "w342/";
     private final static String BACKGROUND_SIZE = "w500/";
 
+    // DetailsActivity trailer thumbnails
+    private final static String THUMBNAILS_BASE_URL = "http://img.youtube.com/vi/";
+    private final static String THUMBNAILS_END_URL = "0.jpg";
 
+    // DetailsActivity Trailers
+    private final static String TRAILER_ENDPOINT = "videos";
+
+    // DetailsActivity Reviews
+    private final static String REVIEWS_ENDPOINT = "reviews";
+
+    // build URL by popular sort
     public static URL buildUrlByPopularSort() {
         Uri builtUri = Uri.parse(MOVIES_BASE_URL).buildUpon()
                 .appendEncodedPath(POPULAR_SORT)
@@ -34,6 +49,7 @@ public class NetworkUtils {
         return getURLfromUri(builtUri);
     }
 
+    // build URL by top rated sort
     public static URL buildUrlByTopRated() {
         Uri builtUri = Uri.parse(MOVIES_BASE_URL).buildUpon()
                 .appendEncodedPath(TOP_RATED_SORT)
@@ -43,6 +59,7 @@ public class NetworkUtils {
         return getURLfromUri(builtUri);
     }
 
+    // build poster URL
     public static URL buildPosterUrl(String poster_path) {
         Uri builtUri = Uri.parse(IMAGES_BASE_URL).buildUpon()
                 .appendEncodedPath(POSTER_SIZE)
@@ -52,6 +69,7 @@ public class NetworkUtils {
         return getURLfromUri(builtUri);
     }
 
+    // build background URL
     public static URL buildBackgroundUrl(String poster_path) {
         Uri builtUri = Uri.parse(IMAGES_BASE_URL).buildUpon()
                 .appendEncodedPath(BACKGROUND_SIZE)
@@ -61,7 +79,34 @@ public class NetworkUtils {
         return getURLfromUri(builtUri);
     }
 
+    // build trailer thumbnail URL
+    public static URL buildTrailerThumbnailUrl(String trailerPath){
+        Uri builtUri = Uri.parse(THUMBNAILS_BASE_URL).buildUpon()
+                .appendEncodedPath(trailerPath)
+                .appendEncodedPath(THUMBNAILS_END_URL)
+                .build();
+        return getURLfromUri(builtUri);
+    }
 
+    public static URL buildURLTrailers(String id) {
+        Uri builtUri = Uri.parse(MOVIES_BASE_URL).buildUpon()
+                .appendEncodedPath(id)
+                .appendEncodedPath(TRAILER_ENDPOINT)
+                .appendQueryParameter(API_QUERY, API_KEY)
+                .build();
+        return getURLfromUri(builtUri);
+    }
+
+    public static URL buildURLReviews(String id) {
+        Uri builtUri = Uri.parse(MOVIES_BASE_URL).buildUpon()
+                .appendEncodedPath(id)
+                .appendEncodedPath(REVIEWS_ENDPOINT)
+                .appendQueryParameter(API_QUERY, API_KEY)
+                .build();
+        return getURLfromUri(builtUri);
+    }
+
+    // helper
     private static URL getURLfromUri(Uri uri) {
         URL url = null;
         try {
@@ -72,6 +117,7 @@ public class NetworkUtils {
         return url;
     }
 
+    // get URL response
     public static String getResponseFromHttpUrl(URL url) throws IOException {
         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
         try {
