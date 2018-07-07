@@ -1,6 +1,10 @@
 package com.example.manon.popularmovies.activity;
 
+import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.LoaderManager;
@@ -18,6 +22,8 @@ import android.widget.TextView;
 import com.example.manon.popularmovies.R;
 import com.example.manon.popularmovies.adapter.ReviewAdapter;
 import com.example.manon.popularmovies.adapter.TrailerAdapter;
+import com.example.manon.popularmovies.database.FavoritesContract;
+import com.example.manon.popularmovies.database.FavoritesDbHelper;
 import com.example.manon.popularmovies.model.Movie;
 import com.example.manon.popularmovies.utils.JsonUtils;
 import com.example.manon.popularmovies.utils.NetworkUtils;
@@ -31,11 +37,16 @@ import java.util.List;
 
 public class DetailsActivity extends AppCompatActivity implements TrailerAdapter.ListItemClickListener, LoaderManager.LoaderCallbacks<Bundle> {
 
+    // LoaderAsyncTask
     private static final int DETAILS_SEARCH_LOADER = 9031996;
 
-    private Boolean favorite;
-    TrailerAdapter trailerAdapter;
-    ReviewAdapter reviewAdapter;
+    // adapters
+    private TrailerAdapter trailerAdapter;
+    private ReviewAdapter reviewAdapter;
+
+    // database
+    private SQLiteDatabase mDb;
+    private FavoritesDbHelper dbHelper = new FavoritesDbHelper(this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +63,7 @@ public class DetailsActivity extends AppCompatActivity implements TrailerAdapter
         displayRateStars(movie);
 
         // display favorite
-        displayIsFavorite();
+        displayIsFavorite(movie);
 
         // setTrailerAdapter
         setTrailerAdapter();
@@ -60,6 +71,7 @@ public class DetailsActivity extends AppCompatActivity implements TrailerAdapter
         // setReviewAdapter
         setReviewAdapter();
 
+        // start AsyncTaskLoader
         Bundle queryBundle = new Bundle();
         queryBundle.putString("MOVIE_ID", movie.getId().toString());
 
@@ -74,7 +86,7 @@ public class DetailsActivity extends AppCompatActivity implements TrailerAdapter
     }
 
     // display movie components
-    public void displayMovieComponents(Movie movie){
+    private void displayMovieComponents(Movie movie){
         ImageView background = findViewById(R.id.background);
         URL urlImageBackground = NetworkUtils.buildBackgroundUrl(movie.getBackdropPath());
         Picasso.with(this).load(urlImageBackground.toString()).into(background);
@@ -94,23 +106,32 @@ public class DetailsActivity extends AppCompatActivity implements TrailerAdapter
     }
 
     // display favorite
-    public void displayIsFavorite(){
-        favorite = false;
+    private void displayIsFavorite(final Movie movie){
+
         final FloatingActionButton floatingActionButton = findViewById(R.id.floatingActionButton);
+
+        if (isInUserFavorites(movie)){
+            floatingActionButton.setImageResource(R.drawable.ic_favorite_black_24dp);
+        } else {
+            floatingActionButton.setImageResource(R.drawable.ic_favorite_border_black_24dp);
+        }
+
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                favorite = !favorite;
-                if (favorite)
-                    floatingActionButton.setImageResource(R.drawable.ic_favorite_black_24dp);
-                else
+                if (isInUserFavorites(movie)){
+                    removeFavorite(movie);
                     floatingActionButton.setImageResource(R.drawable.ic_favorite_border_black_24dp);
+                } else {
+                    addFavorite(movie);
+                    floatingActionButton.setImageResource(R.drawable.ic_favorite_black_24dp);
+                }
             }
         });
     }
 
     // display vote average stars
-    public void displayRateStars(Movie movie){
+    private void displayRateStars(Movie movie){
         List<ImageView> listStars = new ArrayList<>();
         listStars.add((ImageView)findViewById(R.id.star1));
         listStars.add((ImageView)findViewById(R.id.star2));
@@ -129,12 +150,12 @@ public class DetailsActivity extends AppCompatActivity implements TrailerAdapter
         }
     }
 
-    public static double roundToHalfPoint(double d) {
+    private static double roundToHalfPoint(double d) {
         return Math.round(d * 2) / 2.0;
     }
 
     // set trailerAdapter for trailers
-    public void setTrailerAdapter(){
+    private void setTrailerAdapter(){
 
         RecyclerView recyclerView;
 
@@ -150,8 +171,8 @@ public class DetailsActivity extends AppCompatActivity implements TrailerAdapter
         recyclerView.setAdapter(trailerAdapter);
     }
 
-    // set trailerAdapter for trailers
-    public void setReviewAdapter(){
+    // set trailerAdapter for reviews
+    private void setReviewAdapter(){
 
         RecyclerView recyclerView;
 
@@ -168,7 +189,7 @@ public class DetailsActivity extends AppCompatActivity implements TrailerAdapter
         recyclerView.setAdapter(reviewAdapter);
     }
 
-    // set the trailer trailerAdapter listener's action
+    // set the trailer trailerAdapter listener's action = youtube intent
     @Override
     public void onListItemClicked(int clickedItemIndex, String key) {
         Log.v("TRY", Integer.toString(clickedItemIndex));
@@ -257,5 +278,35 @@ public class DetailsActivity extends AppCompatActivity implements TrailerAdapter
     @Override
     public void onLoaderReset(Loader<Bundle> loader) {
 
+    }
+
+    // add movie in favorite database
+    private long addFavorite(Movie movie){
+        mDb = dbHelper.getWritableDatabase();
+
+        ContentValues cv = new ContentValues();
+        cv.put(FavoritesContract.FavoritesEntry.COLUMN_MOVIE_NAME, movie.getTitle());
+        cv.put(FavoritesContract.FavoritesEntry.COLUMN_MOVIE_ID, movie.getId());
+        return mDb.insert(FavoritesContract.FavoritesEntry.TABLE_NAME, null, cv);
+    }
+
+    // remove movie in favorite database
+    private boolean removeFavorite(Movie movie){
+        mDb = dbHelper.getWritableDatabase();
+        return mDb.delete(FavoritesContract.FavoritesEntry.TABLE_NAME, FavoritesContract.FavoritesEntry.COLUMN_MOVIE_ID + "=" + movie.getId(), null) < 0;
+    }
+
+    // is that movie in the user's favorites ?
+    private boolean isInUserFavorites(Movie movie){
+        mDb = dbHelper.getReadableDatabase();
+        String query = "SELECT * FROM " + FavoritesContract.FavoritesEntry.TABLE_NAME + " WHERE " + FavoritesContract.FavoritesEntry.COLUMN_MOVIE_ID + " = " + movie.getId();
+
+        Cursor cursor = mDb.rawQuery(query, null);
+        if (cursor.getCount() <= 0){
+            cursor.close();
+            return false;
+        }
+        cursor.close();
+        return true;
     }
 }

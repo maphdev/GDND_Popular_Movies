@@ -3,6 +3,8 @@ package com.example.manon.popularmovies.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -15,6 +17,8 @@ import android.widget.ProgressBar;
 
 import com.example.manon.popularmovies.adapter.MovieAdapter;
 import com.example.manon.popularmovies.R;
+import com.example.manon.popularmovies.database.FavoritesContract;
+import com.example.manon.popularmovies.database.FavoritesDbHelper;
 import com.example.manon.popularmovies.model.Movie;
 import com.example.manon.popularmovies.utils.JsonUtils;
 import com.example.manon.popularmovies.utils.NetworkUtils;
@@ -49,8 +53,17 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
         recycler.setLayoutManager(layoutManager);
         recycler.setHasFixedSize(true);
 
-        adapter = new MovieAdapter(getListMovieFromURL(NetworkUtils.buildUrlByPopularSort()), this, this);
+        adapter = new MovieAdapter(getListMoviesFromURL(NetworkUtils.buildUrlByPopularSort()), this, this);
         recycler.setAdapter(adapter);
+    }
+
+    // so when we delete from favorites and press back button, it refreshes
+    @Override
+    public void onRestart()
+    {
+        super.onRestart();
+        finish();
+        startActivity(getIntent());
     }
 
     // inflate the menu
@@ -64,32 +77,41 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
     public boolean onOptionsItemSelected(MenuItem item) {
         int itemThatWasClickedId = item.getItemId();
         if (itemThatWasClickedId == R.id.action_sort_popular) {
-            adapter.setListMovies(getListMovieFromURL(NetworkUtils.buildUrlByPopularSort()));
+            adapter.setListMovies(getListMoviesFromURL(NetworkUtils.buildUrlByPopularSort()));
             adapter.notifyDataSetChanged();
             layoutManager.scrollToPosition(0);
             currentMenu.findItem(R.id.action_sort_popular).setVisible(false);
             currentMenu.findItem(R.id.action_sort_top_rated).setVisible(true);
+            currentMenu.findItem(R.id.action_show_favorites).setVisible(true);
             setTitle("Popular Movies");
             return true;
         } else if (itemThatWasClickedId == R.id.action_sort_top_rated) {
-            adapter.setListMovies(getListMovieFromURL(NetworkUtils.buildUrlByTopRated()));
+            adapter.setListMovies(getListMoviesFromURL(NetworkUtils.buildUrlByTopRated()));
             adapter.notifyDataSetChanged();
             layoutManager.scrollToPosition(0);
             currentMenu.findItem(R.id.action_sort_popular).setVisible(true);
             currentMenu.findItem(R.id.action_sort_top_rated).setVisible(false);
+            currentMenu.findItem(R.id.action_show_favorites).setVisible(true);
+
             setTitle("Top rated movies");
             return true;
         } else if (itemThatWasClickedId == R.id.action_show_favorites) {
-            // action
+            adapter.setListMovies(getListMoviesFromDatabase());
+            adapter.notifyDataSetChanged();
+            layoutManager.scrollToPosition(0);
+            currentMenu.findItem(R.id.action_sort_popular).setVisible(true);
+            currentMenu.findItem(R.id.action_sort_top_rated).setVisible(true);
+            currentMenu.findItem(R.id.action_show_favorites).setVisible(false);
+            setTitle("Favorites");
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    // retrieve movies list
-    public List<Movie> getListMovieFromURL(URL url) {
+    // retrieve movies list from URL
+    public List<Movie> getListMoviesFromURL(URL url) {
         List<Movie> listMovies = null;
-        AsyncTask<URL, Void, List<Movie>> async = new MoviesQueryTask().execute(url);
+        AsyncTask<URL, Void, List<Movie>> async = new MoviesEndpointsQueryTask().execute(url);
         try {
             listMovies = async.get();
         } catch (InterruptedException e) {
@@ -100,7 +122,48 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
         return listMovies;
     }
 
-    public class MoviesQueryTask extends AsyncTask<URL, Void, List<Movie>>{
+    // retrieve movies list from database
+    public List<Movie> getListMoviesFromDatabase(){
+        FavoritesDbHelper dbHelper = new FavoritesDbHelper(this);
+        SQLiteDatabase mDb = dbHelper.getReadableDatabase();
+
+        Cursor listMoviesCursor = mDb.query(FavoritesContract.FavoritesEntry.TABLE_NAME,
+                new String[]{FavoritesContract.FavoritesEntry.COLUMN_MOVIE_ID},
+                null,
+                null,
+                null,
+                null,
+                FavoritesContract.FavoritesEntry.COLUMN_MOVIE_NAME);
+
+        List<Integer> listMoviesId = new ArrayList<>();
+
+        int movieIdCol = listMoviesCursor.getColumnIndex(FavoritesContract.FavoritesEntry.COLUMN_MOVIE_ID);
+        while(listMoviesCursor.moveToNext()){
+            int movieId = listMoviesCursor.getInt(movieIdCol);
+            listMoviesId.add(movieId);
+        }
+        listMoviesCursor.close();
+
+        List<Movie> listMovies = new ArrayList<>();
+        for(int i =0; i < listMoviesId.size(); i++){
+            URL urlMovie = NetworkUtils.buildURLMovieById(Integer.toString(listMoviesId.get(i)));
+            AsyncTask<URL, Void, Movie> async = new MovieByIdQueryTask().execute(urlMovie);
+            try {
+                listMovies.add(async.get());
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            }
+        }
+        return listMovies;
+        /*
+        for(int i =0; i < listMoviesId.size(); i++){
+            Log.v("TRY", Integer.toString(listMoviesId.get(i)));
+        }*/
+    }
+
+    public class MoviesEndpointsQueryTask extends AsyncTask<URL, Void, List<Movie>>{
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
@@ -114,7 +177,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
             List<Movie> listMovies = new ArrayList<>();
             try {
                 resultQuery = NetworkUtils.getResponseFromHttpUrl(urlQuery);
-                listMovies = JsonUtils.parseMovieJson(resultQuery);
+                listMovies = JsonUtils.parseMoviesFromEndpointJson(resultQuery);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -123,6 +186,33 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
 
         @Override
         protected void onPostExecute(List<Movie> movies) {
+            loadingIndicator.setVisibility(View.INVISIBLE);
+        }
+    }
+
+    public class MovieByIdQueryTask extends AsyncTask<URL, Void, Movie>{
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            loadingIndicator.setVisibility(View.VISIBLE);
+        }
+
+        @Override
+        protected Movie doInBackground(URL... params) {
+            URL urlQuery = params[0];
+            String resultQuery;
+            Movie movie = null;
+            try {
+                resultQuery = NetworkUtils.getResponseFromHttpUrl(urlQuery);
+                movie = JsonUtils.parseMovieFromId(resultQuery);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return movie;
+        }
+
+        @Override
+        protected void onPostExecute(Movie movie) {
             loadingIndicator.setVisibility(View.INVISIBLE);
         }
     }

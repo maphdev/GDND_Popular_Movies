@@ -35,7 +35,7 @@ public class JsonUtils {
     private static final String VIDEO = "video";
     private static final String VOTE_AVERAGE = "vote_average";
 
-    public static List<Movie> parseMovieJson (String json) {
+    public static List<Movie> parseMoviesFromEndpointJson(String json) {
 
         List<Movie> listMovies = new ArrayList<>();
 
@@ -93,6 +93,61 @@ public class JsonUtils {
         }
 
         return listMovies;
+    }
+
+    private static final String GENRES = "genres";
+
+    public static Movie parseMovieFromId(String json){
+
+        Movie movie = null;
+
+        JSONObject oneMovieDetails;
+
+        String posterPath;
+        boolean adult;
+        String overview;
+        String releaseDate;
+        JSONArray genreIdsArray;
+        List<Integer> genreIdsList;
+        JSONArray genreIdsArray2;
+        Integer id;
+        String originalTitle;
+        String originalLanguage;
+        String title;
+        String backdropPath;
+        Double popularity;
+        Integer voteCount;
+        boolean video;
+        Double voteAverage;
+
+        try{
+            oneMovieDetails = new JSONObject(json);
+            posterPath = oneMovieDetails.optString(POSTER_PATH);
+            adult = oneMovieDetails.optBoolean(ADULT);
+            overview = oneMovieDetails.optString(OVERVIEW);
+            releaseDate = oneMovieDetails.optString(RELEASE_DATE);
+            genreIdsArray = oneMovieDetails.optJSONArray(GENRES);
+            genreIdsList = new ArrayList<>();
+            /*
+            for (int j = 0; j < genreIdsArray.length(); j++) {
+                genreIdsArray2 = genreIdsArray.getJSONArray(j);
+                genreIdsList.add(genreIdsArray2.optInt(0));
+            }*/
+            id = oneMovieDetails.optInt(ID);
+            originalTitle = oneMovieDetails.optString(ORIGINAL_TITLE);
+            originalLanguage = oneMovieDetails.optString(ORIGINAL_LANGUAGE);
+            title = oneMovieDetails.optString(TITLE);
+            backdropPath = oneMovieDetails.optString(BACKDROP_PATH);
+            popularity = oneMovieDetails.optDouble(POPULARITY);
+            voteCount = oneMovieDetails.optInt(VOTE_COUNT);
+            video = oneMovieDetails.optBoolean(VIDEO);
+            voteAverage = oneMovieDetails.optDouble(VOTE_AVERAGE);
+            movie = new Movie(posterPath, adult, overview, releaseDate, genreIdsList, id, originalTitle, originalLanguage, title, backdropPath, popularity, voteCount, video, voteAverage);
+        } catch (final JSONException e){
+            e.printStackTrace();
+        }
+
+        return movie;
     }
 
     // trailer

@@ -22,7 +22,7 @@ public class NetworkUtils {
     private final static String POPULAR_SORT = "popular";
     private final static String TOP_RATED_SORT = "top_rated";
     private final static String API_QUERY = "api_key";
-    private final static String API_KEY = "null";
+    private final static String API_KEY = "Your_api_key_here";
 
     // DetailsActivity images
     private final static String IMAGES_BASE_URL = "http://image.tmdb.org/t/p/";
@@ -101,6 +101,14 @@ public class NetworkUtils {
         Uri builtUri = Uri.parse(MOVIES_BASE_URL).buildUpon()
                 .appendEncodedPath(id)
                 .appendEncodedPath(REVIEWS_ENDPOINT)
+                .appendQueryParameter(API_QUERY, API_KEY)
+                .build();
+        return getURLfromUri(builtUri);
+    }
+
+    public static URL buildURLMovieById(String id){
+        Uri builtUri = Uri.parse(MOVIES_BASE_URL).buildUpon()
+                .appendEncodedPath(id)
                 .appendQueryParameter(API_QUERY, API_KEY)
                 .build();
         return getURLfromUri(builtUri);
