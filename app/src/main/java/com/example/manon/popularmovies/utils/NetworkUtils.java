@@ -22,7 +22,7 @@ public class NetworkUtils {
     private final static String POPULAR_SORT = "popular";
     private final static String TOP_RATED_SORT = "top_rated";
     private final static String API_QUERY = "api_key";
-    private final static String API_KEY = "9fc446524a3b5ebc71d910572efa87c8";
+    private final static String API_KEY = "null";
 
     // DetailsActivity images
     private final static String IMAGES_BASE_URL = "http://image.tmdb.org/t/p/";
