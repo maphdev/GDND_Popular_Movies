@@ -10,4 +10,11 @@
     <string name="reviews">Reviews :</string>
     <string name="author" translatable="false">Author</string>
     <string name="review" translatable="false">Nice movie !</string>
+    <string name="details_activity_title">Movie details</string>
+    <string name="no_connection_msg2">"No internet connection, some elements might not be displayed"</string>
+    <string name="no_connection_msg">"No internet connection."</string>
+    <string name="no_review">No reviews yet!</string>
+    <string name="popular_movies_title">Popular Movies</string>
+    <string name="top_rated_title">Top rated movies</string>
+    <string name="favorites_title">Favorites</string>
 </resources>

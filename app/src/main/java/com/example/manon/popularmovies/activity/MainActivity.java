@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.ConnectivityManager;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -14,6 +15,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.example.manon.popularmovies.adapter.MovieAdapter;
 import com.example.manon.popularmovies.R;
@@ -55,6 +57,11 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
 
         adapter = new MovieAdapter(getListMoviesFromURL(NetworkUtils.buildUrlByPopularSort()), this, this);
         recycler.setAdapter(adapter);
+
+        if(!NetworkUtils.isNetworkAvailable(getApplicationContext())){
+            Toast toast = Toast.makeText(getApplicationContext(), getResources().getString(R.string.no_connection_msg), Toast.LENGTH_LONG);
+            toast.show();
+        }
     }
 
     // so when we delete from favorites and press back button, it refreshes
@@ -83,7 +90,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
             currentMenu.findItem(R.id.action_sort_popular).setVisible(false);
             currentMenu.findItem(R.id.action_sort_top_rated).setVisible(true);
             currentMenu.findItem(R.id.action_show_favorites).setVisible(true);
-            setTitle("Popular Movies");
+            setTitle(getResources().getString(R.string.popular_movies_title));
             return true;
         } else if (itemThatWasClickedId == R.id.action_sort_top_rated) {
             adapter.setListMovies(getListMoviesFromURL(NetworkUtils.buildUrlByTopRated()));
@@ -92,7 +99,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
             currentMenu.findItem(R.id.action_sort_popular).setVisible(true);
             currentMenu.findItem(R.id.action_sort_top_rated).setVisible(false);
             currentMenu.findItem(R.id.action_show_favorites).setVisible(true);
-            setTitle("Top rated movies");
+            setTitle(getResources().getString(R.string.top_rated_title));
             return true;
         } else if (itemThatWasClickedId == R.id.action_show_favorites) {
             adapter.setListMovies(getListMoviesFromDatabase());
@@ -101,7 +108,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
             currentMenu.findItem(R.id.action_sort_popular).setVisible(true);
             currentMenu.findItem(R.id.action_sort_top_rated).setVisible(true);
             currentMenu.findItem(R.id.action_show_favorites).setVisible(false);
-            setTitle("Favorites");
+            setTitle(getResources().getString(R.string.favorites_title));
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -212,7 +219,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
 
         Intent startDetailsActivity = new Intent(context, destinationClass);
         Movie movie = adapter.getListMovies().get(clickedItemIndex);
-        startDetailsActivity.putExtra("movie_parcel", movie);
+        startDetailsActivity.putExtra(DetailsActivity.PARCEL_NAME, movie);
 
         startActivity(startDetailsActivity);
     }

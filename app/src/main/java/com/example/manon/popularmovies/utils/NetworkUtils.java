@@ -1,5 +1,9 @@
 package com.example.manon.popularmovies.utils;
 
+import android.content.ContentUris;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 
 import java.io.IOException;
@@ -22,7 +26,7 @@ public class NetworkUtils {
     private final static String POPULAR_SORT = "popular";
     private final static String TOP_RATED_SORT = "top_rated";
     private final static String API_QUERY = "api_key";
-    private final static String API_KEY = "YOUR_API_KEY_HERE";
+    private final static String API_KEY = "9fc446524a3b5ebc71d910572efa87c8";
 
     // DetailsActivity images
     private final static String IMAGES_BASE_URL = "http://image.tmdb.org/t/p/";
@@ -146,5 +150,23 @@ public class NetworkUtils {
         } finally {
             urlConnection.disconnect();
         }
+    }
+
+    // check if the Network is available
+    public static boolean isNetworkAvailable(Context context){
+        int[] networkTypes = {ConnectivityManager.TYPE_MOBILE, ConnectivityManager.TYPE_WIFI};
+        try {
+            ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            for (int networkType : networkTypes) {
+                NetworkInfo networkInfo = cm.getNetworkInfo(networkType);
+                if (networkInfo != null && networkInfo.getState() == NetworkInfo.State.CONNECTED) {
+                    return true;
+                }
+            }
+        }catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+        return false;
     }
 }

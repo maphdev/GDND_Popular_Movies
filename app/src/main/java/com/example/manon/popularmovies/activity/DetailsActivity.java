@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.LoaderManager;
@@ -18,6 +19,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.manon.popularmovies.R;
 import com.example.manon.popularmovies.adapter.ReviewAdapter;
@@ -48,13 +50,26 @@ public class DetailsActivity extends AppCompatActivity implements TrailerAdapter
     private SQLiteDatabase mDb;
     private FavoritesDbHelper dbHelper = new FavoritesDbHelper(this);
 
+    public static final String PARCEL_NAME = "movie_parcel";
+    public static final String MOVIE_ID = "movie_id";
+    public static final String TRAILER_RESULT = "TRAILER_RESULT";
+    public static final String REVIEW_RESULT = "REVIEW_RESULT";
+
+
+    // YOUTUBE query
+    public static final String SCHEME = "https";
+    public static final String AUTHORITY = "www.youtube.com";
+    public static final String PATH = "watch";
+    public static final String QUERY_PARAM = "v";
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_details);
 
-        Movie movie = getIntent().getParcelableExtra("movie_parcel");
-        setTitle("Movie details");
+        Movie movie = getIntent().getParcelableExtra(PARCEL_NAME);
+        setTitle(getResources().getString(R.string.details_activity_title));
 
         // display movie components
         displayMovieComponents(movie);
@@ -73,7 +88,7 @@ public class DetailsActivity extends AppCompatActivity implements TrailerAdapter
 
         // start AsyncTaskLoader : query trailers & reviews
         Bundle queryBundle = new Bundle();
-        queryBundle.putString("MOVIE_ID", movie.getId().toString());
+        queryBundle.putString(MOVIE_ID, movie.getId().toString());
 
         LoaderManager loaderManager = getSupportLoaderManager();
         Loader<Bundle> trailersAndReviewsLoader = loaderManager.getLoader(DETAILS_SEARCH_LOADER);
@@ -192,13 +207,11 @@ public class DetailsActivity extends AppCompatActivity implements TrailerAdapter
     // set the trailerAdapter listener's action = youtube intent
     @Override
     public void onListItemClicked(int clickedItemIndex, String key) {
-        Log.v("TRY", Integer.toString(clickedItemIndex));
-
         Uri.Builder builder = new Uri.Builder();
-        builder.scheme("https")
-                .authority("www.youtube.com")
-                .appendEncodedPath("watch")
-                .appendQueryParameter("v", key);
+        builder.scheme(SCHEME)
+                .authority(AUTHORITY)
+                .appendEncodedPath(PATH)
+                .appendQueryParameter(QUERY_PARAM, key);
 
         Uri builtUri = builder.build();
 
@@ -230,17 +243,21 @@ public class DetailsActivity extends AppCompatActivity implements TrailerAdapter
 
             @Override
             public Bundle loadInBackground() {
-                String movieId = bundle.getString("MOVIE_ID");
+                String movieId = bundle.getString(MOVIE_ID);
+
+                if (!NetworkUtils.isNetworkAvailable(getContext())){
+                    return null;
+                }
 
                 Bundle myStrings = new Bundle();
                 try {
                     URL trailersURL = NetworkUtils.buildURLTrailers(movieId);
                     String trailerResult = NetworkUtils.getResponseFromHttpUrl(trailersURL);
-                    myStrings.putString("TRAILER_RESULT", trailerResult);
+                    myStrings.putString(TRAILER_RESULT, trailerResult);
 
                     URL reviewsURL = NetworkUtils.buildURLReviews(movieId);
                     String reviewsResult = NetworkUtils.getResponseFromHttpUrl(reviewsURL);
-                    myStrings.putString("REVIEW_RESULT", reviewsResult);
+                    myStrings.putString(REVIEW_RESULT, reviewsResult);
                 } catch (IOException e){
                     e.printStackTrace();
                 }
@@ -252,23 +269,32 @@ public class DetailsActivity extends AppCompatActivity implements TrailerAdapter
     @Override
     public void onLoadFinished(Loader<Bundle> loader, Bundle bundle) {
         if(bundle == null){
-            Log.v("TRY", "no data");
+            Toast toast = Toast.makeText(getApplicationContext(), getResources().getString(R.string.no_connection_msg2), Toast.LENGTH_LONG);
+            toast.show();
+            TextView trailerText = (TextView) findViewById(R.id.trailersText);
+            RecyclerView recyclerTrailer = (RecyclerView) findViewById(R.id.trailerRecyclerView);
+            TextView reviewText = (TextView) findViewById(R.id.reviewsText);
+            RecyclerView recyclerReview = (RecyclerView) findViewById(R.id.reviewRecyclerView);
+            trailerText.setVisibility(View.GONE);
+            recyclerTrailer.setVisibility(View.GONE);
+            reviewText.setVisibility(View.GONE);
+            recyclerReview.setVisibility(View.GONE);
         } else {
-            List<String> listKeys = JsonUtils.parseTrailerKeysJson(bundle.getString("TRAILER_RESULT"));
+            List<String> listKeys = JsonUtils.parseTrailerKeysJson(bundle.getString(TRAILER_RESULT));
             trailerAdapter.setTrailerList(listKeys);
             trailerAdapter.notifyDataSetChanged();
 
-            List<String> listAuthors = JsonUtils.parseAuthorKeysJson(bundle.getString("REVIEW_RESULT"));
+            List<String> listAuthors = JsonUtils.parseAuthorKeysJson(bundle.getString(REVIEW_RESULT));
             reviewAdapter.setListAuthors(listAuthors);
 
-            List<String> listReviews = JsonUtils.parseReviewKeysJson(bundle.getString("REVIEW_RESULT"));
+            List<String> listReviews = JsonUtils.parseReviewKeysJson(bundle.getString(REVIEW_RESULT));
             reviewAdapter.setListReviews(listReviews);
 
             reviewAdapter.notifyDataSetChanged();
 
             if (listReviews.size() == 0){
                 TextView noReviewTextView = (TextView) findViewById(R.id.noReviewTxtView);
-                noReviewTextView.setText("No reviews yet!");
+                noReviewTextView.setText(getResources().getString(R.string.no_review));
                 noReviewTextView.setVisibility(View.VISIBLE);
             }
 
