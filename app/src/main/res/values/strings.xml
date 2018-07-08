@@ -8,4 +8,6 @@
     <string name="background">Background</string>
     <string name="trailers">Trailers :</string>
     <string name="reviews">Reviews :</string>
+    <string name="author" translatable="false">Author</string>
+    <string name="review" translatable="false">Nice movie !</string>
 </resources>

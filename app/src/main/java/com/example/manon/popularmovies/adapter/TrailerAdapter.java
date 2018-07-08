@@ -36,9 +36,7 @@ public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.TrailerV
 
         View view = inflater.inflate(R.layout.trailer_item_view, parent, false);
 
-        TrailerViewHolder viewHolder = new TrailerViewHolder(view);
-
-        return viewHolder;
+        return new TrailerViewHolder(view);
     }
 
     @Override
