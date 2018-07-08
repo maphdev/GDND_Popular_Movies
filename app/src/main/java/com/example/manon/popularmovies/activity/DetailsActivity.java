@@ -71,7 +71,7 @@ public class DetailsActivity extends AppCompatActivity implements TrailerAdapter
         // setReviewAdapter
         setReviewAdapter();
 
-        // start AsyncTaskLoader
+        // start AsyncTaskLoader : query trailers & reviews
         Bundle queryBundle = new Bundle();
         queryBundle.putString("MOVIE_ID", movie.getId().toString());
 
@@ -189,7 +189,7 @@ public class DetailsActivity extends AppCompatActivity implements TrailerAdapter
         recyclerView.setAdapter(reviewAdapter);
     }
 
-    // set the trailer trailerAdapter listener's action = youtube intent
+    // set the trailerAdapter listener's action = youtube intent
     @Override
     public void onListItemClicked(int clickedItemIndex, String key) {
         Log.v("TRY", Integer.toString(clickedItemIndex));
@@ -281,19 +281,17 @@ public class DetailsActivity extends AppCompatActivity implements TrailerAdapter
     }
 
     // add movie in favorite database
-    private long addFavorite(Movie movie){
-        mDb = dbHelper.getWritableDatabase();
-
+    private void addFavorite(Movie movie){
         ContentValues cv = new ContentValues();
         cv.put(FavoritesContract.FavoritesEntry.COLUMN_MOVIE_NAME, movie.getTitle());
         cv.put(FavoritesContract.FavoritesEntry.COLUMN_MOVIE_ID, movie.getId());
-        return mDb.insert(FavoritesContract.FavoritesEntry.TABLE_NAME, null, cv);
-    }
+        Uri uri = getContentResolver().insert(FavoritesContract.FavoritesEntry.CONTENT_URI, cv);
+     }
 
     // remove movie in favorite database
-    private boolean removeFavorite(Movie movie){
-        mDb = dbHelper.getWritableDatabase();
-        return mDb.delete(FavoritesContract.FavoritesEntry.TABLE_NAME, FavoritesContract.FavoritesEntry.COLUMN_MOVIE_ID + "=" + movie.getId(), null) < 0;
+    private void removeFavorite(Movie movie){
+        Uri uri = FavoritesContract.FavoritesEntry.CONTENT_URI.buildUpon().appendEncodedPath(Integer.toString(movie.getId())).build();
+        getContentResolver().delete(uri, null, null);
     }
 
     // is that movie in the user's favorites ?

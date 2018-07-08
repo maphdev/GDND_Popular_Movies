@@ -178,7 +178,7 @@ public class JsonUtils {
         return listKeys;
     }
 
-    // trailer
+    // author
     private static final String AUTHOR = "author";
 
 
@@ -206,7 +206,7 @@ public class JsonUtils {
         return listAuthor;
     }
 
-    // trailer
+    // reviews
     private static final String CONTENT = "content";
 
     public static List<String> parseReviewKeysJson (String json) {

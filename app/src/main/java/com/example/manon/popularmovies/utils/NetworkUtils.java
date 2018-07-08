@@ -22,7 +22,7 @@ public class NetworkUtils {
     private final static String POPULAR_SORT = "popular";
     private final static String TOP_RATED_SORT = "top_rated";
     private final static String API_QUERY = "api_key";
-    private final static String API_KEY = "Your_api_key_here";
+    private final static String API_KEY = "YOUR_API_KEY_HERE";
 
     // DetailsActivity images
     private final static String IMAGES_BASE_URL = "http://image.tmdb.org/t/p/";
@@ -88,6 +88,7 @@ public class NetworkUtils {
         return getURLfromUri(builtUri);
     }
 
+    // build trailer URL
     public static URL buildURLTrailers(String id) {
         Uri builtUri = Uri.parse(MOVIES_BASE_URL).buildUpon()
                 .appendEncodedPath(id)
@@ -97,6 +98,7 @@ public class NetworkUtils {
         return getURLfromUri(builtUri);
     }
 
+    // build reviews URL
     public static URL buildURLReviews(String id) {
         Uri builtUri = Uri.parse(MOVIES_BASE_URL).buildUpon()
                 .appendEncodedPath(id)
@@ -106,6 +108,7 @@ public class NetworkUtils {
         return getURLfromUri(builtUri);
     }
 
+    // build single movie URL
     public static URL buildURLMovieById(String id){
         Uri builtUri = Uri.parse(MOVIES_BASE_URL).buildUpon()
                 .appendEncodedPath(id)
@@ -114,7 +117,7 @@ public class NetworkUtils {
         return getURLfromUri(builtUri);
     }
 
-    // helper
+    // helper to transform Uri to URL
     private static URL getURLfromUri(Uri uri) {
         URL url = null;
         try {

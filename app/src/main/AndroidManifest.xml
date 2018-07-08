@@ -20,6 +20,11 @@
             </intent-filter>
         </activity>
         <activity android:name=".activity.DetailsActivity"></activity>
+
+        <provider
+            android:authorities="com.example.manon.popularmovies"
+            android:name="com.example.manon.popularmovies.database.FavoritesContentProvider"
+            android:exported="false"></provider>
     </application>
 
 </manifest>

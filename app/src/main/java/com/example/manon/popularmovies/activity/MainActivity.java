@@ -92,7 +92,6 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
             currentMenu.findItem(R.id.action_sort_popular).setVisible(true);
             currentMenu.findItem(R.id.action_sort_top_rated).setVisible(false);
             currentMenu.findItem(R.id.action_show_favorites).setVisible(true);
-
             setTitle("Top rated movies");
             return true;
         } else if (itemThatWasClickedId == R.id.action_show_favorites) {
@@ -124,16 +123,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
 
     // retrieve movies list from database
     public List<Movie> getListMoviesFromDatabase(){
-        FavoritesDbHelper dbHelper = new FavoritesDbHelper(this);
-        SQLiteDatabase mDb = dbHelper.getReadableDatabase();
-
-        Cursor listMoviesCursor = mDb.query(FavoritesContract.FavoritesEntry.TABLE_NAME,
-                new String[]{FavoritesContract.FavoritesEntry.COLUMN_MOVIE_ID},
-                null,
-                null,
-                null,
-                null,
-                FavoritesContract.FavoritesEntry.COLUMN_MOVIE_NAME);
+        Cursor listMoviesCursor = getContentResolver().query(FavoritesContract.FavoritesEntry.CONTENT_URI, new String[]{FavoritesContract.FavoritesEntry.COLUMN_MOVIE_ID}, null, null, FavoritesContract.FavoritesEntry.COLUMN_MOVIE_NAME);
 
         List<Integer> listMoviesId = new ArrayList<>();
 
@@ -157,12 +147,8 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
             }
         }
         return listMovies;
-        /*
-        for(int i =0; i < listMoviesId.size(); i++){
-            Log.v("TRY", Integer.toString(listMoviesId.get(i)));
-        }*/
     }
-
+    // get movies from endpoints
     public class MoviesEndpointsQueryTask extends AsyncTask<URL, Void, List<Movie>>{
         @Override
         protected void onPreExecute() {
@@ -190,6 +176,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
         }
     }
 
+    // get movie from id
     public class MovieByIdQueryTask extends AsyncTask<URL, Void, Movie>{
         @Override
         protected void onPreExecute() {
