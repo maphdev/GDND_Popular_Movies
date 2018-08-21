@@ -2,7 +2,7 @@
 
 Second project of Udacity's Android Nanodegree.
 
-Popular Movies is an app that helps users discover popular and recent movies. The user can see either the list of the most popular movies at the moment, or the list of the best rated movies on TMDb. It can then obtain details about these films: poster, synopsys, trailers, users' comments, release date and users' rating. He can finally add movies to his list of favorite movies, so he can find them later.
+Popular Movies is an app that helps users discover popular and recent movies. The user can see either the list of the most popular movies at the moment, or the list of the best rated movies on TMDb. He can then obtain details about these films: poster, synopsys, trailers, users' comments, release date and users' rating. He can finally add movies to his list of favorite movies, so he can find them later.
 
 ## Preview
 
